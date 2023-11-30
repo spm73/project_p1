@@ -6,8 +6,12 @@ class Tamagotchi:
         self.tiredness = 0
         
 
-with open("doraemon_pistola.txt", "r") as file:
+with open("sprites.txt", "r") as file:
+    a = 0
     for line in file.readlines():
-        print(line)
+        if len(line) > a:
+            a = len(line)
+        print(line[:-2])
+    print(a)
         
 a = Tamagotchi("Rigoberto")
