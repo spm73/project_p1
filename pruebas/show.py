@@ -15,3 +15,4 @@ with open("sprites.txt", "r") as file:
     print(a)
         
 a = Tamagotchi("Rigoberto")
+b = "Token funciona"
