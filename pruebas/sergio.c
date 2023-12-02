@@ -1,5 +1,3 @@
-//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
-
 #include <stdio.h>
 #include <unistd.h>
 #include <stdbool.h>
@@ -7,7 +5,8 @@
 
 #define NAME 20
 #define SPRITE_LENGTH 91
-#define SPRITE_WIDHT 45
+#define SPRITE_WIDHT 43 
+#define N_SPRITES 3
 
 typedef struct {
 
@@ -68,21 +67,62 @@ void get_name(char name[]) {
     scanf("%[^\n]s", name);
 }
 
-void get_sprite(char sprite[][],int index, FILE* sprite_file) {
+void get_sprite(char sprite[SPRITE_WIDHT][SPRITE_LENGTH], FILE* sprite_file) {
+    
+    /*
+    Module for getting a sprite
+    The sprites are in the file sprites.txt (2nd argument)
+    The first argument is a bidimensional array that store a sprite
+    This procedure reads from the sprite file a single sprite.
+    */
+
     for (int i = 0; i < SPRITE_WIDHT; i++) {
-        fscanf(sprite_file, "%[^\n]s", sprite[index][i]);
+        fscanf(sprite_file, "%[^\n]s", sprite[i]); // another [] implies adding by chars
+        // when calls fscanf the pointer moves to the last char of a line, so to move to a new line 
+        // just move the pointer 1 position to the right
+        fseek(sprite_file, 1, SEEK_CUR);
+    }
+    // rewind(sprite_file);
+}
+
+void load_sprites(char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH]) {
+
+    /*
+    Module for charging all the sprites
+    Needs of a 3 dimensional array to store them (an array for all the sprites, an array of strings (sprite) and an array of chars)
+    */
+
+    FILE *sprites_file;
+    if (sprites_file = fopen("./sprites.txt", "r")) { // if fopen returns NULL, does not execute the code.
+        int sprites_loaded = 0;
+        char is_n;
+        while (sprites_loaded < N_SPRITES) {
+            is_n = getc(sprites_file);
+            if (is_n != 'n') {
+                fseek(sprites_file, -1, SEEK_CUR);
+                sprites_loaded++;
+                for (int i = 0; i < SPRITE_WIDHT; i++) {
+                    fscanf(sprites_file, "%[^\n]s", sprites[sprites_loaded][i]); // another [] implies adding by chars
+                    // when calls fscanf the pointer moves to the last char of a line, so to move to a new line 
+                    // just move the pointer 1 position to the right
+                    fseek(sprites_file, 1, SEEK_CUR);
+                }
+            }
+        }
+        fclose(sprites_file);
     }
 }
 
-void upload_sprites(char sprites[][][]) {
-    FILE *sprties_file = fopen("./sprites.txt", "r");
-
-}
-
 int main() {
-    char name[NAME];
-    get_name(name);
+    // char name[NAME];
+    // get_name(name);
     
-    TTamagotchi tmgcthi = Tamagotchi(name);
-    
+    char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH];
+    load_sprites(sprites);
+    // TTamagotchi tmgcthi = Tamagotchi(name);
+    for (int i = 0; i < N_SPRITES; i++) {
+        for(int j = 0; j < SPRITE_WIDHT; j++) {
+            printf("%s\n", sprites[i][j]);
+        }
+    }
 }

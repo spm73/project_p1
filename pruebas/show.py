@@ -8,11 +8,13 @@ class Tamagotchi:
 
 with open("sprites.txt", "r") as file:
     a = 0
+    count = 0
     for line in file.readlines():
         if len(line) > a:
             a = len(line)
         print(line[:-2])
-    print(a)
+        count += 1
+    print(a, count % 42)
         
 a = Tamagotchi("Rigoberto")
 b = "Token funciona"
