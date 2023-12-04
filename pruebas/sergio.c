@@ -5,7 +5,7 @@
 
 #define NAME 20
 #define SPRITE_LENGTH 91
-#define SPRITE_WIDHT 43 
+#define SPRITE_WIDHT 45
 #define N_SPRITES 3
 
 typedef struct {
@@ -67,50 +67,57 @@ void get_name(char name[]) {
     scanf("%[^\n]s", name);
 }
 
-void get_sprite(char sprite[SPRITE_WIDHT][SPRITE_LENGTH], FILE* sprite_file) {
-    
-    /*
-    Module for getting a sprite
-    The sprites are in the file sprites.txt (2nd argument)
-    The first argument is a bidimensional array that store a sprite
-    This procedure reads from the sprite file a single sprite.
-    */
-
-    for (int i = 0; i < SPRITE_WIDHT; i++) {
-        fscanf(sprite_file, "%[^\n]s", sprite[i]); // another [] implies adding by chars
-        // when calls fscanf the pointer moves to the last char of a line, so to move to a new line 
-        // just move the pointer 1 position to the right
-        fseek(sprite_file, 1, SEEK_CUR);
-    }
-    // rewind(sprite_file);
-}
-
 void load_sprites(char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH]) {
 
     /*
     Module for charging all the sprites
     Needs of a 3 dimensional array to store them (an array for all the sprites, an array of strings (sprite) and an array of chars)
+    In sprites file, 'n' is used for separating sprites
     */
 
     FILE *sprites_file;
-    if (sprites_file = fopen("./sprites.txt", "r")) { // if fopen returns NULL, does not execute the code.
-        int sprites_loaded = 0;
-        char is_n;
-        while (sprites_loaded < N_SPRITES) {
-            is_n = getc(sprites_file);
-            if (is_n != 'n') {
-                fseek(sprites_file, -1, SEEK_CUR);
-                sprites_loaded++;
-                for (int i = 0; i < SPRITE_WIDHT; i++) {
-                    fscanf(sprites_file, "%[^\n]s", sprites[sprites_loaded][i]); // another [] implies adding by chars
-                    // when calls fscanf the pointer moves to the last char of a line, so to move to a new line 
-                    // just move the pointer 1 position to the right
-                    fseek(sprites_file, 1, SEEK_CUR);
-                }
+    int loaded_sprites = 0;
+    int sprite_lines = 0;
+    char next_char;
+
+    if (sprites_file = fopen("./sprites.txt", "r")) { // if does not open, the code does not execute.
+        do {
+            next_char = getc(sprites_file);
+            if (next_char == 'n') {
+                // 'n' is found, store sprite in next position.
+                loaded_sprites++;
+                sprite_lines = 0;
+            } else {
+                // get the lines of the sprite
+                fscanf(sprites_file, "%[^\n]s", sprites[loaded_sprites][sprite_lines]);
+                sprite_lines++;
+                fseek(sprites_file, 1, SEEK_CUR);
             }
-        }
-        fclose(sprites_file);
+        } while (next_char != EOF);
+        fclose(sprites_file); // close only if it has been opened
     }
+
+    for (int k = 0; k < N_SPRITES; k++) {
+        for (int i = 0; i < SPRITE_WIDHT; i++) {
+            for (int j = 0; j < SPRITE_LENGTH; j++) {
+                printf("%c", sprites[k][i][j]);
+            }
+            printf("\n");
+            // printf("%s\n", sprites[0][i]); // wtf?
+        }
+    }
+}
+
+void clean_sprites(char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH]) {
+
+    /*
+    Procedure that makes all the values of the array of sprites be a blank space
+    */
+
+    for (int i = 0; i < N_SPRITES; i++) 
+        for (int j = 0; j < SPRITE_WIDHT; j++) 
+            for (int k = 0; k < SPRITE_LENGTH; k++)
+                sprites[i][j][k] = ' ';
 }
 
 int main() {
@@ -118,11 +125,10 @@ int main() {
     // get_name(name);
     
     char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH];
+    clean_sprites(sprites);
     load_sprites(sprites);
     // TTamagotchi tmgcthi = Tamagotchi(name);
-    for (int i = 0; i < N_SPRITES; i++) {
-        for(int j = 0; j < SPRITE_WIDHT; j++) {
-            printf("%s\n", sprites[i][j]);
-        }
-    }
+    // for (int i = 0; i < SPRITE_WIDHT; i++) {
+    //     printf("%s\n", sprites[0][i]);
+    // }
 }
