@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdlib.h>
 
 #define NAME 20
 #define SPRITE_LENGTH 91
@@ -97,15 +98,15 @@ void load_sprites(char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH]) {
         fclose(sprites_file); // close only if it has been opened
     }
 
-    for (int k = 0; k < N_SPRITES; k++) {
-        for (int i = 0; i < SPRITE_WIDHT; i++) {
-            for (int j = 0; j < SPRITE_LENGTH; j++) {
-                printf("%c", sprites[k][i][j]);
-            }
-            printf("\n");
-            // printf("%s\n", sprites[0][i]); // wtf?
-        }
-    }
+    // for (int k = 0; k < N_SPRITES; k++) {
+    //     for (int i = 0; i < SPRITE_WIDHT; i++) {
+    //         for (int j = 0; j < SPRITE_LENGTH; j++) {
+    //             printf("%c", sprites[k][i][j]);
+    //         }
+    //         printf("\n");
+    //         // printf("%s\n", sprites[0][i]); // wtf?
+    //     }
+    // }
 }
 
 void clean_sprites(char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH]) {
@@ -120,6 +121,23 @@ void clean_sprites(char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH]) {
                 sprites[i][j][k] = ' ';
 }
 
+void print_sprite(char sprite[SPRITE_WIDHT][SPRITE_LENGTH]) {
+    system("clear");
+    for (int i = 0; i < SPRITE_WIDHT; i++) {
+        for (int j = 0; j < SPRITE_LENGTH; j++)
+            printf("%c", sprite[i][j]);
+        printf("\n");
+    }
+}
+
+void blink(char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH]) {
+    for (int i = 0; i < 10; i++) {
+        sleep(1);
+        print_sprite(sprites[i % 2 + 1]);
+    }
+
+}
+
 int main() {
     // char name[NAME];
     // get_name(name);
@@ -128,7 +146,5 @@ int main() {
     clean_sprites(sprites);
     load_sprites(sprites);
     // TTamagotchi tmgcthi = Tamagotchi(name);
-    // for (int i = 0; i < SPRITE_WIDHT; i++) {
-    //     printf("%s\n", sprites[0][i]);
-    // }
+    blink(sprites);
 }
