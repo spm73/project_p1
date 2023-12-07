@@ -121,7 +121,7 @@ void clean_sprites(char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH]) {
                 sprites[i][j][k] = ' ';
 }
 
-void print_sprite(char sprite[SPRITE_WIDHT][SPRITE_LENGTH]) {
+void print_sprite(const char sprite[SPRITE_WIDHT][SPRITE_LENGTH]) {
     system("clear");
     for (int i = 0; i < SPRITE_WIDHT; i++) {
         for (int j = 0; j < SPRITE_LENGTH; j++)
@@ -130,21 +130,57 @@ void print_sprite(char sprite[SPRITE_WIDHT][SPRITE_LENGTH]) {
     }
 }
 
-void blink(char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH]) {
-    for (int i = 0; i < 10; i++) {
-        sleep(1);
+void blink(const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH]) {
+    const float time = 1;
+    for (int i = 0; i < 2; i++) {
+        sleep(time);
         print_sprite(sprites[i % 2 + 1]);
+        // sleep(time);
     }
 
 }
 
+void main_loop(TTamagotchi* tmgtchi, const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH]) {
+    const float time = 1;
+    
+    char user_input;
+
+    while ((*tmgtchi).alive) {
+        blink(sprites);
+        if ((*tmgtchi).hunger >= 70) {
+            printf("I'm hungry!\n");
+            scanf("%c", &user_input);
+            if ((*tmgtchi).hunger >= 100) { 
+                (*tmgtchi).alive = false;
+                system("clear");
+                printf("%s has died of ligma\n", (*tmgtchi).name);
+            }
+            switch (user_input) {
+                case 'c':
+                    (*tmgtchi).hunger = 0;
+                default:
+                    break;
+            }
+        } else if ((*tmgtchi).tiredness >= 70) {
+            printf("I'm tired!\n");
+        } else if ((*tmgtchi).hygene <= 30) {
+            printf("Can I have a bath?\n");
+        } else if ((*tmgtchi).go_to_bathroom) {
+            printf("I need to go to the bathroom\n");
+        } else if ((*tmgtchi).ill) {
+            printf("Mr Stark, I don't feel so good\n");
+        }
+        (*tmgtchi).hunger += 10;
+    }
+}
+
 int main() {
-    // char name[NAME];
-    // get_name(name);
+    char name[NAME];
+    get_name(name);
     
     char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH];
     clean_sprites(sprites);
     load_sprites(sprites);
-    // TTamagotchi tmgcthi = Tamagotchi(name);
-    blink(sprites);
+    TTamagotchi tmgcthi = Tamagotchi(name);
+    main_loop(&tmgcthi, sprites);
 }
