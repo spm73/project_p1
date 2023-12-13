@@ -123,7 +123,13 @@ void clean_sprites(char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH]) {
 }
 
 void print_sprite(const char sprite[SPRITE_WIDHT][SPRITE_LENGTH]) {
-    system("clear");
+
+    /*
+    Procedure to print a single sprite
+    */
+
+    system("clear"); // clears the terminal so that a new sprite could be displayed
+    // print display
     for (int i = 0; i < SPRITE_WIDHT; i++) {
         for (int j = 0; j < SPRITE_LENGTH; j++)
             printf("%c", sprite[i][j]);
@@ -132,9 +138,15 @@ void print_sprite(const char sprite[SPRITE_WIDHT][SPRITE_LENGTH]) {
 }
 
 void blink(const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH]) {
-    const float time = 1;
+    
+    /*
+    Procedure to draw the blinks of the tamagotchi.
+    */
+    
+    // Declare and assign the value for the blink
+    const float TIME = 1;
     for (int i = 0; i < 2; i++) {
-        sleep(time);
+        sleep(TIME);
         print_sprite(sprites[i % 2 + 1]);
         // sleep(time);
     }
@@ -142,7 +154,7 @@ void blink(const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH]) {
 }
 
 void main_loop(TTamagotchi* tmgtchi, const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH]) {
-    const float time = 1;
+    const float TIME = 1;
     
     char user_input;
 
