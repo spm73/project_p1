@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
+#include <conio.h>
 
 #define NAME 20
 #define SPRITE_LENGTH 91
