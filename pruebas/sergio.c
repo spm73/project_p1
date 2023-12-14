@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
-#include <conio.h>
+#include <curses.h>
 
 #define NAME 20
 #define SPRITE_LENGTH 91
@@ -42,7 +42,7 @@ typedef struct {
     bool alive;
 } TTamagotchi;
 
-TTamagotchi Tamagotchi(char name[NAME]) {
+TTamagotchi Tamagotchi(const char name[NAME]) {
    
     /*
     Constructor for a TTamagotchi.
@@ -128,7 +128,8 @@ void print_sprite(const char sprite[SPRITE_WIDHT][SPRITE_LENGTH]) {
     Procedure to print a single sprite
     */
 
-    system("clear"); // clears the terminal so that a new sprite could be displayed
+    system("clear"); // needed. If not, a part of the last sprite appears on the top.
+    erase(); // clears the terminal so that a new sprite could be displayed
     // print display
     for (int i = 0; i < SPRITE_WIDHT; i++) {
         for (int j = 0; j < SPRITE_LENGTH; j++)
@@ -137,40 +138,45 @@ void print_sprite(const char sprite[SPRITE_WIDHT][SPRITE_LENGTH]) {
     }
 }
 
-void blink(const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH]) {
+void blink(const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH], const char message[NAME]) {
     
     /*
     Procedure to draw the blinks of the tamagotchi.
+    Also, prints an info message of the state of the tamagotchi. 
     */
     
     // Declare and assign the value for the blink
-    const float TIME = 1;
+    const int TIME = 750000;
     for (int i = 0; i < 2; i++) {
-        sleep(TIME);
         print_sprite(sprites[i % 2 + 1]);
+        printf("%s", message);
+        usleep(TIME);
         // sleep(time);
     }
-
 }
 
-void main_loop(TTamagotchi* tmgtchi, const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH]) {
-    const float TIME = 1;
+void main_loop(TTamagotchi* tmgtchi, const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH], WINDOW* win) {
     
-    char user_input;
+    int user_input;
+    char message[NAME];
 
     while ((*tmgtchi).alive) {
-        blink(sprites);
+        blink(sprites, message);
         if ((*tmgtchi).hunger >= 70) {
-            printf("I'm hungry!\n");
-            scanf("%c", &user_input);
+            strcpy(message, "I'm hungry\n");
+            // scanf("%c", &user_input);
+            user_input = wgetch(win);
             if ((*tmgtchi).hunger >= 100) { 
                 (*tmgtchi).alive = false;
                 system("clear");
+                erase();
                 printf("%s has died of ligma\n", (*tmgtchi).name);
+                usleep(2000000);
             }
             switch (user_input) {
                 case 'c':
                     (*tmgtchi).hunger = 0;
+                    strcpy(message, "");
                 default:
                     break;
             }
@@ -187,13 +193,45 @@ void main_loop(TTamagotchi* tmgtchi, const char sprites[N_SPRITES][SPRITE_WIDHT]
     }
 }
 
-int main() {
-    char name[NAME];
-    get_name(name);
+void create_screen(WINDOW* win) {
     
-    char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH];
+    /*
+    Procedure to create a window to display the tamagotchi
+    error
+    */
+
+    win = initscr(); // initialize window
+    keypad(win, true); // unables to enter special keys from keyword such as the arrows
+    nodelay(win, true); // unables continue process even though user does not enter a value
+}
+
+TTamagotchi init_game(char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH], char name[NAME]) {
+    
+    /*
+    Function to initialize the game, in other words, sets up all things for
+    the correct functioning.
+    Must be called before initializing a window with ncurses.
+    */
+
+    get_name(name);
     clean_sprites(sprites);
     load_sprites(sprites);
     TTamagotchi tmgcthi = Tamagotchi(name);
-    main_loop(&tmgcthi, sprites);
+    return tmgcthi;
+}
+
+int main() {
+    char name[NAME];
+    char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH];
+    
+    TTamagotchi tmgcthi = init_game(sprites, name);
+
+    WINDOW* win = initscr();
+    keypad(win, true);
+    nodelay(win, true);
+    // create_screen(win);
+
+    main_loop(&tmgcthi, sprites, win);
+    endwin();
+    system("clear");
 }

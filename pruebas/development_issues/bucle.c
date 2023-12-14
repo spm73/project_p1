@@ -1,21 +1,21 @@
-#include <stdio.h>
-<<<<<<< HEAD
-=======
-#include <ncurses.h>
+#include <curses.h>
+#include <stdlib.h>
 #include <unistd.h>
 
-int main() {
-    // initscr();
-    char a;
-    nodelay(stdscr, TRUE);
-    // printf("To stop the loop press any key\n");
-    for (int i = 0; i < 10; i++) {
-        if ((a = getch()) == ERR) {
-            printf("User has not pressed\n");
-        } else {
-            printf("User pressed %c\n", a);
+void main() {
+    WINDOW* win = initscr();
+    keypad(win, true);
+    nodelay(win, true);
+    int a = 0;
+    for (;;) {
+        int pressed = wgetch(win);
+        if (pressed == KEY_LEFT) { 
+            a++;
+            putp("HelloP");
         }
-        sleep(1);
+        erase();
+        mvaddstr(a,0,"Hello");
+        usleep(100000);
     }
+    endwin();
 }
->>>>>>> 06aa1a80e0a074946801f1cd921cfabf6b24c3ec
