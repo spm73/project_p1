@@ -130,7 +130,7 @@ void print_sprite(const char sprite[SPRITE_WIDHT][SPRITE_LENGTH]) {
     */
 
     system("clear"); // needed. If not, a part of the last sprite appears on the top.
-    erase(); // clears the terminal so that a new sprite could be displayed
+    // erase(); // clears the terminal so that a new sprite could be displayed
     // print display
     for (int i = 0; i < SPRITE_WIDHT; i++) {
         for (int j = 0; j < SPRITE_LENGTH; j++)
