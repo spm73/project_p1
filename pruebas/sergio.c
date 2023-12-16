@@ -83,6 +83,7 @@ void load_sprites(char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH]) {
     char next_char;
 
     if (sprites_file = fopen("./sprites.txt", "r")) { // if does not open, the code does not execute.
+        fseek(sprites_file, 1, SEEK_CUR);
         do {
             next_char = getc(sprites_file);
             if (next_char == 'n') {
@@ -115,7 +116,7 @@ void clean_sprites(char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH]) {
     /*
     Procedure that makes all the values of the array of sprites be a blank space
     */
-
+   
     for (int i = 0; i < N_SPRITES; i++) 
         for (int j = 0; j < SPRITE_WIDHT; j++) 
             for (int k = 0; k < SPRITE_LENGTH; k++)
@@ -149,7 +150,7 @@ void blink(const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH], const cha
     const int TIME = 750000;
     for (int i = 0; i < 2; i++) {
         print_sprite(sprites[i % 2 + 1]);
-        printf("%s", message);
+        printf("   %s", message);
         usleep(TIME);
         // sleep(time);
     }
@@ -230,7 +231,6 @@ int main() {
     keypad(win, true);
     nodelay(win, true);
     // create_screen(win);
-
     main_loop(&tmgcthi, sprites, win);
     endwin();
     system("clear");
