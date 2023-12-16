@@ -1,10 +1,15 @@
 #include<stdio.h>
 #include<unistd.h>
+#include "sergio.c"
 /*todo esta metido con modulos, estos son solo los contadores de hambre, sueño, hygiene y nivel de lele pancha*/
 void hunger_update();
 void tierdness_update();
 void hygiene_update();
 void illness_lvl_update();
+bool eat();
+bool die();
+bool psico();
+bool otaku();
 
 // en el main tan solo se ejecutan los modulos, piensa que esto es provisional y debe ir anidado a otras funciones
 int main(){
@@ -18,6 +23,7 @@ int main(){
     hygiene_update(&hygiene);
     illness_level_update(&illness_lvl);
 
+
 }
 //cada modulo cuenta con un puntero que es el valor que pasa como actualización
 void hunger_update(int* h){
@@ -25,6 +31,7 @@ void hunger_update(int* h){
     
     if (has_eat()){
         hunger = hunger - 30;
+        while(hunger < 0){hunger = 0;}
         *h = hunger;
         switch(hunger){
             //estos mensajes apareceran si cuando le has dado de comer el hambre sigue siendo mayor a 50 de e mensaje de nuevo
@@ -131,6 +138,7 @@ void illness_lvl_update(int *l){
         }
         else if (take_medicaments()){
             illness_lvl = illness_lvl - 30;
+                while(hunger < 0){hunger = 0;}
             *l = illness_lvl;
             switch(illness_lvl){
                 //estos mensajes apareceran si cuando le has dado el medicamento y la salud sigue siendo mayor a 50 de e mensaje de nuevo
@@ -166,3 +174,20 @@ void illness_lvl_update(int *l){
         }
     }
 }
+
+bool eat(){
+    char touch = 0;
+    print_sprite(4);
+    printf("press e to eat\n");
+    scanf("%c\n", &touch);
+    if((touch != 'e')||(sleep(10))){
+        clean_sprites();
+        printf("you fail\n");
+        }
+    else{
+        print_sprite(5);
+        return(touch == 'e');
+        clean_sprite();
+    }
+}
+
