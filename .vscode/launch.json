@@ -9,7 +9,7 @@
       "stopAtEntry": false,
       "externalConsole": false,
       "cwd": "/home/spm73/Escritorio/Ing1/cuatri1/P1/project_p1",
-      "program": "/home/spm73/Escritorio/Ing1/cuatri1/P1/project_p1/build/Debug/outDebug",
+      "program": "/home/spm73/Escritorio/Ing1/cuatri1/P1/project_p1/pruebas/sergio",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

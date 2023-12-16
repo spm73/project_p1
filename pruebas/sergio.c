@@ -8,7 +8,7 @@
 #define NAME 20
 #define SPRITE_LENGTH 91
 #define SPRITE_WIDHT 45
-#define N_SPRITES 3
+#define N_SPRITES 9
 
 typedef struct {
 
@@ -129,14 +129,14 @@ void print_sprite(const char sprite[SPRITE_WIDHT][SPRITE_LENGTH]) {
     Procedure to print a single sprite
     */
 
-    system("clear"); // needed. If not, a part of the last sprite appears on the top.
-    // erase(); // clears the terminal so that a new sprite could be displayed
+    erase(); // clears the terminal so that a new sprite could be displayed
     // print display
     for (int i = 0; i < SPRITE_WIDHT; i++) {
         for (int j = 0; j < SPRITE_LENGTH; j++)
-            printf("%c", sprite[i][j]);
-        printf("\n");
+            printw("%c", sprite[i][j]);
+        printw("\n");
     }
+    refresh();
 }
 
 void blink(const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH], const char message[NAME]) {
@@ -150,16 +150,32 @@ void blink(const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH], const cha
     const int TIME = 750000;
     for (int i = 0; i < 2; i++) {
         print_sprite(sprites[i % 2 + 1]);
-        printf("   %s", message);
+        printw("%s", message);
+        refresh();
         usleep(TIME);
         // sleep(time);
     }
 }
 
+void die(const TTamagotchi* tmgtchi, const char dead_sprite[SPRITE_WIDHT][SPRITE_LENGTH]) {
+    
+    /*
+    Void to execute if the tamagotchi dies.
+    */
+
+    const int TIME = 2000000;
+    // system("clear");
+    erase(); // clears screen
+    print_sprite(dead_sprite); // prints gravestone
+    printw("%s has died of ligma\n", (*tmgtchi).name); // followed by the name of the tamagotchi
+    refresh();
+    usleep(TIME);
+}
+
 void main_loop(TTamagotchi* tmgtchi, const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH], WINDOW* win) {
     
     int user_input;
-    char message[NAME];
+    char message[NAME] = ""; // must be initialized to an empty string as the message could contain weird characters generated randomly 
 
     while ((*tmgtchi).alive) {
         blink(sprites, message);
@@ -169,10 +185,6 @@ void main_loop(TTamagotchi* tmgtchi, const char sprites[N_SPRITES][SPRITE_WIDHT]
             user_input = wgetch(win);
             if ((*tmgtchi).hunger >= 100) { 
                 (*tmgtchi).alive = false;
-                system("clear");
-                erase();
-                printf("%s has died of ligma\n", (*tmgtchi).name);
-                usleep(2000000);
             }
             switch (user_input) {
                 case 'c':
@@ -192,6 +204,7 @@ void main_loop(TTamagotchi* tmgtchi, const char sprites[N_SPRITES][SPRITE_WIDHT]
         }
         (*tmgtchi).hunger += 10;
     }
+    die(tmgtchi, sprites[5]);
 }
 
 void create_screen(WINDOW* win) {

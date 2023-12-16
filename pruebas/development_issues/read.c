@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #define SPRITE_LENGTH 91
 #define SPRITE_WIDHT 45
-#define N_SPRITES 3
+#define N_SPRITES 9
 void load_sprites(char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH]) {
 
     /*

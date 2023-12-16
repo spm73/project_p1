@@ -11,7 +11,8 @@ void main() {
         int pressed = wgetch(win);
         if (pressed == KEY_LEFT) { 
             a++;
-            putp("HelloP");
+            printw("HelloP");
+            refresh();
         }
         erase();
         mvaddstr(a,0,"Hello");
