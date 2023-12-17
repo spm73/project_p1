@@ -1,13 +1,14 @@
 #include<stdio.h>
 #include<unistd.h>
 #include "sergio.c"
+#include <curses.h>
 /*todo esta metido con modulos, estos son solo los contadores de hambre, sueño, hygiene y nivel de lele pancha*/
 void hunger_update();
 void tierdness_update();
 void hygiene_update();
 void illness_lvl_update();
 bool eat();
-bool die();
+// bool die(); no hace falta que lo hagas que ya la he hecho yo
 bool psico();
 bool otaku();
 
@@ -30,24 +31,34 @@ void hunger_update(int* h){
     int hunger = *h;
     
     if (has_eat()){
-        hunger = hunger - 30;
+        hunger = hunger - 30; // hunger -= 30
         while(hunger < 0){hunger = 0;}
         *h = hunger;
-        switch(hunger){
-            //estos mensajes apareceran si cuando le has dado de comer el hambre sigue siendo mayor a 50 de e mensaje de nuevo
-            case(hunger =< 50):
-                break;
-            case((hunger > 50)&&(hunger <=75)):
-                printf("I'm hungry :(");
-                break;
-            case(hunger > 75):
-                printf("I'm starving");
-                break;
-        }
+        // el switch solo sirve para valores constantes, es decir, que no puedes hacer comparaciones en los casos porque no devuelven siempre el mismo valor.
+        // osea que toca hacerlo con if y else if y else, te dejo un ejemplo.
+        // switch(hunger){
+        //     //estos mensajes apareceran si cuando le has dado de comer el hambre sigue siendo mayor a 50 de e mensaje de nuevo
+        //     case(hunger =< 50):
+        //         break;
+        //     case((hunger > 50)&&(hunger <=75)):
+        //         printf("I'm hungry :(");
+        //         break;
+        //     case(hunger > 75):
+        //         printf("I'm starving");
+        //         break;
+        // }
+        if (hunger > 50 && hunger <= 75) {
+            printw("I'm hungry :("); // para printear con ncurses se usa esta función, que funciona igual que printf
+        } else if (hunger > 75) {
+            printw("I'm starving");
+        } 
+        refresh(); // para actualizar la pantalla de ncurses
     }
     else{
         //esto es un bucle que siempre esta activo donde se cuenta el nivel de hambre
-        for (hunger; hunger >= 100; hunger++){
+        for (hunger; hunger >= 100; hunger++){ // para que sea más facil de leer, usa un while
+            // además, ten en cuenta que la idea es que haya un bucle principal donde se llamen a funciones para actualizar los valores
+            // osea que las puedes hacer para que no use punteros (si quieres claro)
             //cada 2 segundos bajará el hambre
             sleep(2);
             //y devuelve el valor por un puntero al main
@@ -61,7 +72,7 @@ void hunger_update(int* h){
                 case(hunger > 75):
                     printf("I'm starving");
                     break;
-                case(hygiene > 100):
+                case(hygiene > 100): // aquí pone hygiene y es una función de comer
                     //modulo de la muerte de doraemon:(
                     die();
                     break;
@@ -81,15 +92,15 @@ void tierdness_update(int* t){
     else{
         for (tierdness; tierdness >= 100; tierdness++){
             sleep(1);
-            t* = tierdness;
+            t* = tierdness; // t* no existe en C, *t para deferenciar el valor
             switch(tierdness){
                 case(tierdness =< 50):
                     break;
                 case((tierdness > 50)&&(tierdness <=75)):
-                    printf("I'm tierd :(");
+                    printf("I'm tired :(");
                     break;
                 case(tierdness > 75):
-                    printf("I'm so tierd");
+                    printf("I'm so tired");
                     break;
                 case(tierdness > 100):
                     printf("heil hitler");
@@ -177,11 +188,12 @@ void illness_lvl_update(int *l){
 
 bool eat(){
     char touch = 0;
-    print_sprite(4);
-    printf("press e to eat\n");
+    print_sprite(4); // debes pasarle una array bidimensional de carácteres (sprite), no un número.
+    printf("press e to eat\n"); // con ncurses debes usar printw("string que quiereas") y luego usar refresh()
     scanf("%c\n", &touch);
-    if((touch != 'e')||(sleep(10))){
-        clean_sprites();
+    if((touch != 'e')||(sleep(10))){ // sleep(10) siempre devuelve verdadero
+        clean_sprites(); // esta función limpia todos los sprites, osea, que de aquí en adelante no habrá sprites. Además recibe como parámetro el array de sprites.
+        // creo que tu lo interpretas como una función para borrar el sprite que esta en pantalla. Para eso, usando ncurses es usando la función erase()
         printf("you fail\n");
         }
     else{
