@@ -1,14 +1,15 @@
 #include <stdio.h>
+#include <curses.h>
 #include <unistd.h>
 #include <stdbool.h>
 #include <string.h>
-#include <stdlib.h>
-#include <curses.h>
 
-#define NAME 20
-#define SPRITE_LENGTH 91
-#define SPRITE_WIDHT 45
-#define N_SPRITES 9
+#define NAME 20 // max lenght of the name of the tamagotchi. Also used as length of any string
+#define SPRITE_LENGTH 91 // length of a line in the sprites file
+#define SPRITE_WIDHT 45 // max number of lines a sprite can have
+#define N_SPRITES 9 // number of sprites
+#define NORMAL_TICK 750000 // use for change sprites and so on
+#define LONG_TICK 2000000 // use for special sprites
 
 typedef struct {
 
@@ -99,22 +100,13 @@ void load_sprites(char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH]) {
         } while (next_char != EOF);
         fclose(sprites_file); // close only if it has been opened
     }
-
-    // for (int k = 0; k < N_SPRITES; k++) {
-    //     for (int i = 0; i < SPRITE_WIDHT; i++) {
-    //         for (int j = 0; j < SPRITE_LENGTH; j++) {
-    //             printf("%c", sprites[k][i][j]);
-    //         }
-    //         printf("\n");
-    //         // printf("%s\n", sprites[0][i]); // wtf?
-    //     }
-    // }
 }
 
 void clean_sprites(char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH]) {
 
     /*
     Procedure that makes all the values of the array of sprites be a blank space
+    to make sure that we do not get random chars while printing
     */
    
     for (int i = 0; i < N_SPRITES; i++) 
@@ -136,7 +128,7 @@ void print_sprite(const char sprite[SPRITE_WIDHT][SPRITE_LENGTH]) {
             printw("%c", sprite[i][j]);
         printw("\n");
     }
-    refresh();
+    refresh(); // to show the changes on the screen
 }
 
 void blink(const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH], const char message[NAME]) {
@@ -147,13 +139,11 @@ void blink(const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH], const cha
     */
     
     // Declare and assign the value for the blink
-    const int TIME = 750000;
     for (int i = 0; i < 2; i++) {
         print_sprite(sprites[i % 2 + 1]);
         printw("%s", message);
         refresh();
-        usleep(TIME);
-        // sleep(time);
+        usleep(NORMAL_TICK);
     }
 }
 
@@ -163,13 +153,11 @@ void die(const TTamagotchi* tmgtchi, const char dead_sprite[SPRITE_WIDHT][SPRITE
     Void to execute if the tamagotchi dies.
     */
 
-    const int TIME = 2000000;
-    // system("clear");
     erase(); // clears screen
     print_sprite(dead_sprite); // prints gravestone
     printw("%s has died of ligma\n", (*tmgtchi).name); // followed by the name of the tamagotchi
     refresh();
-    usleep(TIME);
+    usleep(LONG_TICK);
 }
 
 void main_loop(TTamagotchi* tmgtchi, const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH], WINDOW* win) {
@@ -207,18 +195,6 @@ void main_loop(TTamagotchi* tmgtchi, const char sprites[N_SPRITES][SPRITE_WIDHT]
     die(tmgtchi, sprites[5]);
 }
 
-void create_screen(WINDOW* win) {
-    
-    /*
-    Procedure to create a window to display the tamagotchi
-    error
-    */
-
-    win = initscr(); // initialize window
-    keypad(win, true); // unables to enter special keys from keyword such as the arrows
-    nodelay(win, true); // unables continue process even though user does not enter a value
-}
-
 TTamagotchi init_game(char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH]) {
     
     /*
@@ -233,18 +209,4 @@ TTamagotchi init_game(char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH]) {
     load_sprites(sprites);
     TTamagotchi tmgcthi = Tamagotchi(name);
     return tmgcthi;
-}
-
-int main() {
-    char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH];
-    
-    TTamagotchi tmgcthi = init_game(sprites);
-
-    WINDOW* win = initscr();
-    keypad(win, true);
-    nodelay(win, true);
-    // create_screen(win);
-    main_loop(&tmgcthi, sprites, win);
-    endwin();
-    system("clear");
 }
