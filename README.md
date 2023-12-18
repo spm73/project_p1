@@ -1,6 +1,7 @@
 # Doraemongotchi
 ---
 ![doraemongotchi](./images/doreamongotchi.png)
+
 The game that every children wants for Christmas: _Doraemongotchi_
 
 _Doraemongotchi_ is a project born to make a remake of the classic **_Tamagotchi_**

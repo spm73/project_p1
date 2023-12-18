@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <curses.h>
+#include <time.h>
 
 #define NAME 20
 #define SPRITE_LENGTH 91
@@ -172,6 +173,41 @@ void die(const TTamagotchi* tmgtchi, const char dead_sprite[SPRITE_WIDHT][SPRITE
     usleep(TIME);
 }
 
+int eat(const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH], int hunger, WINDOW* win) {
+
+    /*
+    Function that makes the animations for eating and updates the stats
+    First, we print the dorayaki and wait until the user gives the order to eat
+    If the user gives the order, then we change the sprite and we set the return value to 0,
+        whichi means that the tamagothci is no longer hungry
+    However, if the user does not give the order, the value stays the same and the sprite does not change 
+    */
+
+    int dorayaki_sprite = 3; // index of the full dorayaki sprite
+    int user_input;
+    // now we set the variables to measure time
+    clock_t begin_count = clock();
+    clock_t end_count;
+    double time_passed;
+    do {
+        print_sprite(sprites[dorayaki_sprite]); // print the full dorayaki sprite
+        user_input = wgetch(win); // get user input
+        switch (user_input) {
+            case 'e':
+                hunger = 0; // as the tamagotchi has been fed, then it is no longer hungry
+                dorayaki_sprite++; // change index of sprite
+                print_sprite(sprites[dorayaki_sprite]);
+                usleep(2000000);
+                break;
+            default: break;
+        }
+        end_count = clock();
+        time_passed = (end_count - begin_count) / CLOCKS_PER_SEC; // update time spent
+    } while (time_passed < 2 || user_input == 'e');
+
+    return hunger;
+}
+
 void main_loop(TTamagotchi* tmgtchi, const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH], WINDOW* win) {
     
     int user_input;
@@ -179,18 +215,19 @@ void main_loop(TTamagotchi* tmgtchi, const char sprites[N_SPRITES][SPRITE_WIDHT]
 
     while ((*tmgtchi).alive) {
         blink(sprites, message);
+        (*tmgtchi).hunger += 10;
         if ((*tmgtchi).hunger >= 70) {
             strcpy(message, "I'm hungry\n");
             // scanf("%c", &user_input);
             user_input = wgetch(win);
-            if ((*tmgtchi).hunger >= 100) { 
-                (*tmgtchi).alive = false;
-            }
             switch (user_input) {
-                case 'c':
-                    (*tmgtchi).hunger = 0;
-                    strcpy(message, "");
+                case 'e':
+                    (*tmgtchi).hunger = eat(sprites, (*tmgtchi).hunger, win);
+                    if ((*tmgtchi).hunger == 0)
+                        strcpy(message, "");
                 default:
+                    if ((*tmgtchi).hunger >= 100) 
+                        (*tmgtchi).alive = false;
                     break;
             }
         } else if ((*tmgtchi).tiredness >= 70) {
@@ -202,7 +239,7 @@ void main_loop(TTamagotchi* tmgtchi, const char sprites[N_SPRITES][SPRITE_WIDHT]
         } else if ((*tmgtchi).ill) {
             printf("Mr Stark, I don't feel so good\n");
         }
-        (*tmgtchi).hunger += 10;
+        
     }
     die(tmgtchi, sprites[5]);
 }
