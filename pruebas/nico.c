@@ -144,13 +144,15 @@ void take_medicaments(bool* drink_potion, bool* smoke_weed, const char sprites[N
     }while(time_passed < 2 && !pressed)
 }
 
-void bath(const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH]){
+void bath(int* hygiene, const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH]){
+    *hygiene = 0
     int bath_sprite = 6;
     print_sprite(sprites[bath_sprite]);
     usleep(2000000);
 }
 
-void has_sleep (const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH]){
+void has_sleep (int* tiredness, const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH]){
+    *tireddness = 0
     int sleep_sprite = 0;
     print_sprite(sprites[sleep_sprite]);
     usleep(2000000);
