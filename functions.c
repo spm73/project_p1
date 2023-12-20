@@ -195,7 +195,7 @@ int eat(const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH], int hunger, 
         // update time spent
         end_count = clock();
         time_passed = (end_count - begin_count) / CLOCKS_PER_SEC;
-    } while (time_passed < 2 || !pressed);
+    } while (time_passed < 2 && !pressed);
 
     return hunger;
 }
