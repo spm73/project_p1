@@ -158,7 +158,7 @@ void blink(const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH], const cha
     }
 }
 
-void die(const TTamagotchi* tmgtchi, const char dead_sprite[SPRITE_WIDHT][SPRITE_LENGTH]) {
+void die(const char tmgtchi_name[NAME], const char dead_sprite[SPRITE_WIDHT][SPRITE_LENGTH]) {
     
     /*
     Void to execute if the tamagotchi dies.
@@ -168,7 +168,7 @@ void die(const TTamagotchi* tmgtchi, const char dead_sprite[SPRITE_WIDHT][SPRITE
     // system("clear");
     erase(); // clears screen
     print_sprite(dead_sprite); // prints gravestone
-    printw("%s has died of ligma\n", (*tmgtchi).name); // followed by the name of the tamagotchi
+    printw("%s has died of ligma\n", tmgtchi_name); // followed by the name of the tamagotchi
     refresh();
     usleep(TIME);
 }
@@ -247,7 +247,7 @@ void main_loop(TTamagotchi* tmgtchi, const char sprites[N_SPRITES][SPRITE_WIDHT]
         }
         flushinp();
     }
-    die(tmgtchi, sprites[5]);
+    die((*tmgtchi).name, sprites[5]);
 }
 
 void create_screen(WINDOW* win) {

@@ -1,7 +1,3 @@
-#include <stdio.h>
-#include <unistd.h>
-#include <stdbool.h>
-#include <string.h>
 #include "functions.h"
 
 int main() {
@@ -19,4 +15,5 @@ int main() {
 
     // When game ends, close the window
     endwin();
+    return 0;
 }
