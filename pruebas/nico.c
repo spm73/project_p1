@@ -6,8 +6,6 @@ void hunger_update();
 void tiredness_update();
 void hygiene_update();
 void illness_lvl_update();
-bool eat();
-bool die();
 bool ill;
 void has_sleep();
 void bath();
@@ -112,8 +110,7 @@ void illness_lvl_update(int* l, bool* ill, int* score){
         do{
         printf("do you want a medicament(y|n)\n");
         scanf("%c", &chose)
-        }
-        while((chose != 'y')||(chose != 'n'));
+        } while((chose != 'y')||(chose != 'n'));
         if(chose == 'y'){
             take_medicament(&smoke_weed, &drink_potion);
             if (smoke_weed == true){
@@ -149,7 +146,7 @@ void illness_lvl_update(int* l, bool* ill, int* score){
 
 void take_medicaments(bool* drink_potion, bool* drink_potion, const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH]){
     int chose_med = 0;
-    printf("which medicament do you want?\n")
+    printf("which medicament do you want?\n");
     printf("1.potion (health+30)| 200 score\n");
     printf("2.secret way(health max)| 500 score\n");
     printf("other number to exit\n");

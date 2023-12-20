@@ -185,6 +185,7 @@ int eat(const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH], int hunger, 
 
     int dorayaki_sprite = 3; // index of the full dorayaki sprite
     int user_input;
+    bool pressed = false;
     // now we set the variables to measure time
     clock_t begin_count = clock();
     clock_t end_count;
@@ -195,15 +196,18 @@ int eat(const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH], int hunger, 
         switch (user_input) {
             case 'e':
                 hunger = 0; // as the tamagotchi has been fed, then it is no longer hungry
-                dorayaki_sprite++; // change index of sprite
+                pressed = true;
+                dorayaki_sprite = 4; // change index of sprite
                 print_sprite(sprites[dorayaki_sprite]);
                 usleep(2000000);
                 break;
-            default: break;
+            default:
+                pressed = false;
+                break;
         }
         end_count = clock();
         time_passed = (end_count - begin_count) / CLOCKS_PER_SEC; // update time spent
-    } while (time_passed < 2 || user_input == 'e');
+    } while (time_passed < 2 && !pressed);
 
     return hunger;
 }
@@ -215,6 +219,7 @@ void main_loop(TTamagotchi* tmgtchi, const char sprites[N_SPRITES][SPRITE_WIDHT]
 
     while ((*tmgtchi).alive) {
         blink(sprites, message);
+        // user_input = ERR;
         (*tmgtchi).hunger += 10;
         if ((*tmgtchi).hunger >= 70) {
             strcpy(message, "I'm hungry\n");
@@ -222,6 +227,7 @@ void main_loop(TTamagotchi* tmgtchi, const char sprites[N_SPRITES][SPRITE_WIDHT]
             user_input = wgetch(win);
             switch (user_input) {
                 case 'e':
+                    flushinp();
                     (*tmgtchi).hunger = eat(sprites, (*tmgtchi).hunger, win);
                     if ((*tmgtchi).hunger == 0)
                         strcpy(message, "");
@@ -239,7 +245,7 @@ void main_loop(TTamagotchi* tmgtchi, const char sprites[N_SPRITES][SPRITE_WIDHT]
         } else if ((*tmgtchi).ill) {
             printf("Mr Stark, I don't feel so good\n");
         }
-        
+        flushinp();
     }
     die(tmgtchi, sprites[5]);
 }

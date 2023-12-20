@@ -16,3 +16,6 @@ gcc main.c functions.c -lncurses
 ./a.out
 # command to run the program
 ```
+
+If you are entering the name of the tamagotchi and when you pressed enter a ```^M``` appears,
+use ```stty sane``` to solve the problem

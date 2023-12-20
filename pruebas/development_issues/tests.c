@@ -1,12 +1,23 @@
 #include <stdio.h>
 #include <time.h>
+#include <curses.h>
+#include <unistd.h>
 
 int main() {
-    clock_t begin = clock();
-    for (int i = 0; i < 2000000; i++) {
-        printf(" ");
-    }
-    clock_t end = clock();
-    double time = (double) (end-begin) / CLOCKS_PER_SEC;
-    printf("\n%f seconds", time);
+    WINDOW* win = initscr();
+    keypad(win, true);
+    nodelay(win, true);
+    int user_input;
+    do {
+        flushinp(); 
+        printw("enter char");
+        refresh();
+        sleep(1);
+        user_input = wgetch(win);
+        if (user_input != ERR)
+            printw("%d", user_input);
+        refresh();
+        sleep(1);
+        erase();
+    } while (user_input != 'e');
 }
