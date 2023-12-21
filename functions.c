@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <time.h>
+#include <stdlib.h>
 
 #define NAME 20 // max lenght of the name of the tamagotchi. Also used as length of any string
 #define SPRITE_LENGTH 91 // length of a line in the sprites file
@@ -43,7 +44,7 @@ typedef struct {
     bool ill;
     int illness_lvl;
     bool alive;
-    int score
+    int score;
 } TTamagotchi;
 
 TTamagotchi Tamagotchi(const char name[NAME]) {
@@ -135,7 +136,7 @@ void print_sprite(const char sprite[SPRITE_WIDHT][SPRITE_LENGTH]) {
     refresh(); // to show the changes on the screen
 }
 
-void blink(const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH], const char message[NAME]) {
+void blink(const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH]) {
     
     /*
     Procedure to draw the blinks of the tamagotchi.
@@ -145,9 +146,9 @@ void blink(const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH], const cha
     // Declare and assign the value for the blink
     for (int i = 0; i < 2; i++) {
         print_sprite(sprites[i % 2 + 1]);
-        printw("%s", message);
         refresh();
-        usleep(NORMAL_TICK);
+        if (i == 0) // because if not the second sprite stays more time. More time to develop
+            usleep(NORMAL_TICK);
     }
 }
 
@@ -205,40 +206,11 @@ int eat(const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH], int hunger, 
     return hunger;
 }
 
-void main_loop(TTamagotchi* tmgtchi, const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH], WINDOW* win) {
-    
-    int user_input;
-    char message[NAME] = ""; // must be initialized to an empty string as the message could contain weird characters generated randomly 
-
-    while ((*tmgtchi).alive) {
-        blink(sprites, message);
-        (*tmgtchi).hunger += 10;
-        if ((*tmgtchi).hunger >= 70) {
-            strcpy(message, "I'm hungry\n");
-            user_input = wgetch(win);
-            switch (user_input) {
-                case 'e':
-                    flushinp();
-                    (*tmgtchi).hunger = eat(sprites, (*tmgtchi).hunger, win);
-                    if ((*tmgtchi).hunger == 0)
-                        strcpy(message, "");
-                default:
-                    if ((*tmgtchi).hunger >= 100) 
-                        (*tmgtchi).alive = false;
-                    break;
-            }
-        } else if ((*tmgtchi).tiredness >= 70) {
-            printf("I'm tired!\n");
-        } else if ((*tmgtchi).hygiene <= 30) {
-            printf("Can I have a bath?\n");
-        } else if ((*tmgtchi).go_to_bathroom) {
-            printf("I need to go to the bathroom\n");
-        } else if ((*tmgtchi).ill) {
-            printf("Mr Stark, I don't feel so good\n");
-        }
-        flushinp();
-    }
-    die((*tmgtchi).name, sprites[5]);
+void pritn_instructions() {
+    printf("Instructions:\n");
+    printf("\tPress 'e' to feed the Doraemongotchi\n");
+    printf("\tPress 's' to order the Doraemongotchi to go to sleep\n");
+    printf("\tPress 'b' to shower the Doraemongotchi\n");
 }
 
 TTamagotchi init_game(char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH]) {
@@ -250,6 +222,7 @@ TTamagotchi init_game(char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH]) {
     */
 
     char name[NAME];
+    pritn_instructions();
     get_name(name);
     clean_sprites(sprites);
     load_sprites(sprites);
@@ -257,28 +230,81 @@ TTamagotchi init_game(char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH]) {
     return tmgcthi;
 }
 
-void hunger_update(int* hunger, const tmgcthi_name[NAME], const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH]){
-    (*hunger)++;
-    if (*hunger == 100)
-        die(tmgcthi_name, sprites[5]);
+void hunger_update(int* hunger, bool* alive){
+    (*hunger) += 10;
+    if ((*hunger) == 100) 
+        *alive = false;
+    else if ((*hunger) >= 70) 
+        printw("I'm hungry (e)\n");
+    refresh();
 }
 
 void tiredness_update(int* tiredness, bool* ill){
-    (*tiredness)++;
-    if(*tiredness == 100){
+    (*tiredness) += 5;
+    if(*tiredness >= 100){
         printw("I'm starting to feel strange");
-        refresh();
         *ill = true;
+    } else if (*tiredness >= 70) {
+        printw("I'm sleepy (s)\n");
     }
+    refresh();
 }    
 
 void hygiene_update(int* hygiene, bool* ill){
-    (*hygiene)++;
-    if (*hygiene == 100){
+    (*hygiene) -= 5;
+    if (*hygiene == 0){
         printw("I'm starting to feel strange");
-        refresh();
         *ill = true;
+    } else if (*hygiene <= 30) {
+        printw("Clean me! (b)\n");
     }
+    refresh();
+}
+
+void take_medicaments(bool* drink_potion, bool* smoke_weed, const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH], WINDOW* win, int score){
+    int chose_med;
+    int potion_sprite = 7;
+    int smoke_sprite = 8;
+    clock_t begin_count = clock();
+    clock_t end_count;
+    double time_passed;
+    bool pressed = false;
+    printw("which medicament do you want?\n");
+    printw("1.potion (health+30)| 200 score\n");
+    printw("2.secret way(health max)| 500 score\n");
+    printw("other number to exit\n");
+    printw("Actual score: %d\n", score);
+    refresh();
+    while (!pressed) {
+        chose_med = wgetch(win);
+        pressed = true;
+    }
+    pressed = false;    
+    do{
+        switch(chose_med){
+            case '1': //49
+                if (score >= 200) {
+                    *drink_potion = true;
+                    print_sprite(sprites[potion_sprite]);
+                    usleep(LONG_TICK);
+                    pressed = true;
+                }
+                break;
+            case '2': //50
+                if (score >= 500) {
+                    *smoke_weed = true;
+                    print_sprite(sprites[smoke_sprite]);
+                    usleep(LONG_TICK);
+                    pressed = true;
+                }
+                break;
+            default:
+                pressed = false;
+                break;
+        }
+    end_count = clock();
+    time_passed = (end_count - begin_count) / CLOCKS_PER_SEC; // update time spent
+    }while(time_passed < 2 && !pressed);
 }
 
 void illness_lvl_update(TTamagotchi* tmgtchi, WINDOW* win, const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH]){
@@ -289,13 +315,13 @@ void illness_lvl_update(TTamagotchi* tmgtchi, WINDOW* win, const char sprites[N_
     clock_t end_count;
     double time_passed;
     if((*tmgtchi).ill == true){
-        do{
             printw("do you want a medicament(y|n)\n");
             refresh();
+        do{
             choose = wgetch(win);
             switch(choose) {
                 case 'y':
-                    take_medicament(&smoke_weed, &drink_potion, sprites, win);
+                    take_medicaments(&smoke_weed, &drink_potion, sprites, win, (*tmgtchi).score);
                     if (smoke_weed == true) {
                         (*tmgtchi).illness_lvl = 0;
                         (*tmgtchi).score = (*tmgtchi).score - 500;
@@ -309,18 +335,18 @@ void illness_lvl_update(TTamagotchi* tmgtchi, WINDOW* win, const char sprites[N_
                     else{
                         (*tmgtchi).illness_lvl += 5;
                         if((*tmgtchi).illness_lvl == 100)
-                            die((*tmgtchi).name, sprites[5]);
+                            (*tmgtchi).alive = false;
                     }
                     break;
                 case 'n':
                     (*tmgtchi).illness_lvl += 5;
                     if((*tmgtchi).illness_lvl == 100)
-                        die((*tmgtchi).name, sprites[5]);
+                        (*tmgtchi).alive = false;
                     break;
                 default:
-                    (*tmgtchi).illness_lvl += 5;
-                    if((*tmgtchi).illness_lvl == 100) 
-                        die((*tmgtchi).name, sprites[5]);
+                    // (*tmgtchi).illness_lvl += 5;
+                    // if((*tmgtchi).illness_lvl == 100) 
+                    //     (*tmgtchi).alive = false;
                     break;
             }
             end_count = clock();
@@ -328,58 +354,89 @@ void illness_lvl_update(TTamagotchi* tmgtchi, WINDOW* win, const char sprites[N_
 
             if((*tmgtchi).illness_lvl == 0)
                 (*tmgtchi).ill = false;
-        }while(((choose != 'y')&&(choose != 'n'))&& time_passed < 2);
+        }while(!((choose == 'y')||(choose == 'n'))&& time_passed < 5);
     }    
-}
-
-
-void take_medicaments(bool* drink_potion, bool* smoke_weed, const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH], WINDOW* win){
-    int chose_med;
-    int potion_sprite = 7;
-    int smoke_sprite = 8;
-    clock_t begin_count = clock();
-    clock_t end_count;
-    double time_passed;
-    bool pressed = false;
-    printw("which medicament do you want?\n");
-    printw("1.potion (health+30)| 200 score\n");
-    printw("2.secret way(health max)| 500 score\n");
-    printw("other number to exit\n");
-    refresh();
-    chose_med = wgetch(win);
-    do{
-        switch(chose_med){
-            case 1:
-                *drink_potion = true;
-                print_sprite(sprites[potion_sprite]);
-                usleep(LONG_TICK);
-                pressed = true;
-                break;
-            case 2:
-                *smoke_weed = true;
-                print_sprite(sprites[smoke_sprite]);
-                usleep(LONG_TICK);
-                break;
-                pressed = true;
-            default:
-                pressed = false;
-                break;
-        }
-    end_count = clock();
-    time_passed = (end_count - begin_count) / CLOCKS_PER_SEC; // update time spent
-    }while(time_passed < 2 && !pressed);
+    // flushinp();
 }
 
 void bath(int* hygiene, const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH]){
-    *hygiene = 0;
+    *hygiene = 100;
     int bath_sprite = 6;
     print_sprite(sprites[bath_sprite]);
     usleep(LONG_TICK);
 }
 
-void has_sleep (int* tiredness, const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH]){
+void tmgtchi_sleep(int* tiredness, const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH]){
     *tiredness = 0;
     int sleep_sprite = 0;
     print_sprite(sprites[sleep_sprite]);
     usleep(LONG_TICK);
+}
+
+int update_score(int score) {
+    return score + 10;
+}
+
+void update_stats(TTamagotchi* tmgtchi, const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH], WINDOW* win) {
+    /*
+    Procedure to update all the stats of the Tamagothci
+    */
+    hunger_update(&(*tmgtchi).hunger, &(*tmgtchi).alive);
+    tiredness_update(&(*tmgtchi).tiredness, &(*tmgtchi).ill);
+    hygiene_update(&(*tmgtchi).hygiene, &(*tmgtchi).ill);
+    illness_lvl_update(tmgtchi, win, sprites);
+    (*tmgtchi).score = update_score((*tmgtchi).score);
+    usleep(NORMAL_TICK);
+}
+
+void main_loop(TTamagotchi* tmgtchi, const char sprites[N_SPRITES][SPRITE_WIDHT][SPRITE_LENGTH], WINDOW* win) {
+    
+    int user_input;
+    // char message[NAME] = ""; // must be initialized to an empty string as the message could contain weird characters generated randomly 
+
+    while ((*tmgtchi).alive) {
+        blink(sprites);
+        // (*tmgtchi).hunger += 10;
+        // if ((*tmgtchi).hunger >= 70) {
+        //     strcpy(message, "I'm hungry\n");
+        //     user_input = wgetch(win);
+        //     switch (user_input) {
+        //         case 'e':
+        //             flushinp();
+        //             (*tmgtchi).hunger = eat(sprites, (*tmgtchi).hunger, win);
+        //             if ((*tmgtchi).hunger == 0)
+        //                 strcpy(message, "");
+        //         default:
+        //             if ((*tmgtchi).hunger >= 100) 
+        //                 (*tmgtchi).alive = false;
+        //             break;
+        //     }
+        // } else if ((*tmgtchi).tiredness >= 70) {
+        //     printf("I'm tired!\n");
+        // } else if ((*tmgtchi).hygiene <= 30) {
+        //     printf("Can I have a bath?\n");
+        // } else if ((*tmgtchi).go_to_bathroom) {
+        //     printf("I need to go to the bathroom\n");
+        // } else if ((*tmgtchi).ill) {
+        //     printf("Mr Stark, I don't feel so good\n");
+        // }
+        update_stats(tmgtchi, sprites, win);
+        user_input = wgetch(win);
+        flushinp();
+        switch (user_input) {
+            case 'e':
+                (*tmgtchi).hunger = eat(sprites, (*tmgtchi).hunger, win);
+                break;
+            case 's':
+                tmgtchi_sleep(&(*tmgtchi).tiredness, sprites);
+                break;
+            case 'b':
+                bath(&(*tmgtchi).hygiene, sprites);
+                break;
+            default:
+                break;
+        }
+        flushinp(); // because the user can enter, without noticing, a char on the buff
+    }
+    die((*tmgtchi).name, sprites[5]);
 }
