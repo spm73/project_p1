@@ -16,6 +16,7 @@ typedef struct {
     bool ill;
     int illness_lvl;
     bool alive;
+    int score;
 } TTamagotchi;
 
 TTamagotchi Tamagotchi(const char name[NAME]);
